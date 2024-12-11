@@ -1,0 +1,994 @@
+// This was copied from here: https://dirtyastro.wordpress.com/2016/12/20/project-retrofitted-goto-dob-pt4/
+
+[
+    {
+        "id": "ce01dcb1.0d0708",
+        "type": "ui_slider",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Speed",
+        "label": "PWM Speed",
+        "group": "529fa907.5b11e8",
+        "order": 2,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "",
+        "min": 0,
+        "max": "480",
+        "step": "",
+        "x": 1550,
+        "y": 100,
+        "wires": [
+            [
+                "2033a63e.1db752",
+                "768f7064.9ee06",
+                "17540ba2.acbf54"
+            ]
+        ]
+    },
+    {
+        "id": "593500d9.472898",
+        "type": "ui_slider",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Speed",
+        "label": "PWM Speed",
+        "group": "16013277.c83b7e",
+        "order": 2,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "",
+        "min": 0,
+        "max": "480",
+        "step": "",
+        "x": 1550,
+        "y": 460,
+        "wires": [
+            [
+                "8f81d77d.913248",
+                "57bd08e3.4074e",
+                "f1d65120.e97d88"
+            ]
+        ]
+    },
+    {
+        "id": "321f9e0a.7d180a",
+        "type": "ui_switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Direction",
+        "label": "Direction",
+        "group": "529fa907.5b11e8",
+        "order": 4,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "",
+        "onvalue": "1",
+        "onvalueType": "num",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "0",
+        "offvalueType": "num",
+        "officon": "",
+        "offcolor": "",
+        "x": 1400,
+        "y": 280,
+        "wires": [
+            [
+                "645e68f.4975798"
+            ]
+        ]
+    },
+    {
+        "id": "652d3f0e.09ae2",
+        "type": "ui_switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Direction",
+        "label": "Direction",
+        "group": "16013277.c83b7e",
+        "order": 4,
+        "width": "",
+        "height": "",
+        "passthru": true,
+        "topic": "",
+        "onvalue": "1",
+        "onvalueType": "num",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "0",
+        "offvalueType": "num",
+        "officon": "",
+        "offcolor": "",
+        "x": 1380,
+        "y": 640,
+        "wires": [
+            [
+                "afe2732b.c81f78"
+            ]
+        ]
+    },
+    {
+        "id": "645e68f.4975798",
+        "type": "rpi-gpio out",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor 1 Direction",
+        "pin": "29",
+        "set": true,
+        "level": "1",
+        "out": "out",
+        "x": 1750,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "afe2732b.c81f78",
+        "type": "rpi-gpio out",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor 2 Direction",
+        "pin": "31",
+        "set": true,
+        "level": "1",
+        "out": "out",
+        "x": 1750,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "6ff502aa.0b4db4",
+        "type": "inject",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Init 1",
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 90,
+        "y": 160,
+        "wires": [
+            [
+                "5f3a8643.d01b28",
+                "a2f35daf.c5eab"
+            ]
+        ]
+    },
+    {
+        "id": "2033a63e.1db752",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor 1 Speed",
+        "func": "var pin = 26;\nvar wpi = context.global.wpi;\nwpi.wiringPiSetup();\nwpi.pinMode(pin, wpi.PWM_OUTPUT);\nwpi.pwmSetMode(wpi.PWM_MODE_MS);\nwpi.pwmSetRange(480);\nwpi.pwmSetClock(2);\nif(msg.payload){\n    wpi.pwmWrite(pin, parseInt(msg.payload));\n} else {\n    wpi.pwmWrite(pin, 0);\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1740,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8f81d77d.913248",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor 2 Speed",
+        "func": "var pin2 = 23;\nvar wpi = context.global.wpi;\nwpi.wiringPiSetup();\nwpi.pinMode(pin2, wpi.PWM_OUTPUT);\nwpi.pwmSetMode(wpi.PWM_MODE_MS);\nwpi.pwmSetRange(480);\nwpi.pwmSetClock(2);\nif(msg.payload){\n    wpi.pwmWrite(pin2, parseInt(msg.payload));\n} else {\n    wpi.pwmWrite(pin2, 0);\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1740,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a4ae907d.6bb7f8",
+        "type": "ui_chart",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor 2 (Y / Alt / DEC)",
+        "group": "16013277.c83b7e",
+        "order": 5,
+        "width": "",
+        "height": "",
+        "label": "Alt Axis",
+        "chartType": "line",
+        "xformat": "HH:mm:ss",
+        "interpolate": "basis",
+        "nodata": "No Data",
+        "ymin": "-480",
+        "ymax": "480",
+        "removeOlder": "5",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": "",
+        "x": 1930,
+        "y": 419,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "3e5949e7.deb77e",
+        "type": "ui_chart",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor 1 (X / Az / RA)",
+        "group": "529fa907.5b11e8",
+        "order": 5,
+        "width": "",
+        "height": "",
+        "label": "Az Axis",
+        "chartType": "line",
+        "xformat": "HH:mm:ss",
+        "interpolate": "basis",
+        "nodata": "No Data",
+        "ymin": "-480",
+        "ymax": "480",
+        "removeOlder": "5",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": "",
+        "x": 1936,
+        "y": 58,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "f822aab.d15f158",
+        "type": "debug",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Current Speed",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 900,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "bcf80c97.cf8bb",
+        "type": "HIDdevice",
+        "z": "6e9dcce8.16d0ac",
+        "connection": "2ea0db0d.dcda1c",
+        "name": "Gamepad",
+        "x": 100,
+        "y": 240,
+        "wires": [
+            [
+                "1b8ddc4f.6f8d8c"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "61c8dccf.8e230c",
+        "type": "switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "cont",
+                "v": "20",
+                "vt": "str"
+            },
+            {
+                "t": "cont",
+                "v": "10",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 3,
+        "x": 470,
+        "y": 240,
+        "wires": [
+            [
+                "205dff56.1dbc5"
+            ],
+            [
+                "205dff56.1dbc5"
+            ],
+            [
+                "1fe4527a.912056"
+            ]
+        ]
+    },
+    {
+        "id": "1b8ddc4f.6f8d8c",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "BufferHex to String",
+        "func": "msg.payload = msg.payload.toString('hex');\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 240,
+        "wires": [
+            [
+                "61c8dccf.8e230c"
+            ]
+        ]
+    },
+    {
+        "id": "205dff56.1dbc5",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "MotorSpeed Logic",
+        "func": "var stepsize = 22;\nvar currspeed = global.get(\"motorspeed\");\nif (msg.payload.slice(-2) == \"20\"||msg.payload.slice(-2)==\"20\") {\n    currspeed = currspeed + stepsize;\n} else if (msg.payload.slice(-2) == \"10\"||msg.payload.slice(-2)==\"10\") {\n    currspeed = currspeed - stepsize;\n}\nif (currspeed = 480) {\n    currspeed = 480\n}\nglobal.set(\"motorspeed\", currspeed);\nmsg.payload = currspeed;\nvar log = {};\nif (currspeed == 22) {\n    log.payload = \"Motor Speed now \"+currspeed+\" (MIN)\";\n} else if (currspeed == 480) {\n    log.payload = \"Motor Speed now \"+currspeed+\" (MAX)\";\n} else {\n    log.payload = \"Motor Speed now \"+currspeed;\n}\n\nreturn [msg,log];",
+        "outputs": "2",
+        "noerr": 0,
+        "x": 670,
+        "y": 200,
+        "wires": [
+            [
+                "86292b52.9330b"
+            ],
+            [
+                "f822aab.d15f158"
+            ]
+        ]
+    },
+    {
+        "id": "5f3a8643.d01b28",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Init Global Vars",
+        "func": "global.set(\"motorspeed\",44);\nglobal.set(\"m1dir\",1);\nglobal.set(\"m2dir\",1);",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 280,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1fe4527a.912056",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Motor Direction Handler",
+        "func": "var mg1, mg2, m1={}, m2={}, m3={}, m4={}, m5={}, m6={}, v = 0;\nvar speed = global.get(\"motorspeed\");\nif (msg.payload == '3f0000'){\n    global.set(\"m2dir\",1);\n    m6.payload = speed;\n    v = 1;\n}\nif (msg.payload == '3f7f00'){\n    global.set(\"m2dir\",0);\n    m6.payload = speed;\n    v = 1;\n}\nif (msg.payload == '7f3f00'){\n    global.set(\"m1dir\",1);\n    m5.payload = speed;\n    v = 1;\n}\nif (msg.payload == '003f00'){\n    global.set(\"m1dir\",0);\n    m5.payload = speed;\n    v = 1;\n}\nif (msg.payload == '7f0000'){\n    global.set(\"m1dir\",1);\n    global.set(\"m2dir\",1);\n    m5.payload = speed;\n    m6.payload = speed;\n    v = 1;\n}\nif (msg.payload == '7f7f00'){\n    global.set(\"m1dir\",1);\n    global.set(\"m2dir\",0);\n    m5.payload = speed;\n    m6.payload = speed;\n    v = 1;\n}\nif (msg.payload == '007f00'){\n    global.set(\"m1dir\",0);\n    global.set(\"m2dir\",0);\n    m5.payload = speed;\n    m6.payload = speed;\n    v = 1;\n}\nif (msg.payload == '000000'){\n    global.set(\"m1dir\",0);\n    global.set(\"m2dir\",1);\n    m5.payload = speed;\n    m6.payload = speed;\n    v = 1;\n}\nif (msg.payload == '3f3f00'){\n    global.set(\"m1dir\",1);\n    global.set(\"m2dir\",1);\n\n//    m5.payload = speed;\n//    m6.payload = speed;\n    v = 1;\n}\nif (v == 1) {\n    var gm1 = global.get(\"m1dir\");\n    if (gm1 == 1) {\n        mg1 = \"Forward\";\n    } else {\n        mg1 = \"Reverse\";\n    }\n    var gm2 = global.get(\"m2dir\");\n    if (gm2 == 1) {\n        mg2 = \"Forward\";\n    } else {\n        mg2 = \"Reverse\";\n    }\n    m1.payload = \"M1 Direction: \" + mg1;\n    m2.payload = \"M2 Direction: \" + mg2;\n    m3.payload = gm1;\n    m4.payload = gm2;\n    return [m5,m3,m2,m1,m6,m4];\n}",
+        "outputs": "6",
+        "noerr": 0,
+        "x": 850,
+        "y": 300,
+        "wires": [
+            [
+                "4e4b9c11.53474c",
+                "768f7064.9ee06",
+                "17540ba2.acbf54"
+            ],
+            [
+                "321f9e0a.7d180a"
+            ],
+            [],
+            [],
+            [
+                "625d1cf9.254094",
+                "57bd08e3.4074e",
+                "f1d65120.e97d88"
+            ],
+            [
+                "652d3f0e.09ae2"
+            ]
+        ]
+    },
+    {
+        "id": "a2f35daf.c5eab",
+        "type": "getHIDdevices",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "x": 260,
+        "y": 160,
+        "wires": [
+            [
+                "75a0a8aa.300fc"
+            ]
+        ]
+    },
+    {
+        "id": "75a0a8aa.300fc",
+        "type": "debug",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Connected HID Devices",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 490,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "86292b52.9330b",
+        "type": "ui_text",
+        "z": "6e9dcce8.16d0ac",
+        "group": "f50f09aa.7b4da",
+        "order": 3,
+        "width": "",
+        "height": "",
+        "name": "Controller Motor Speed",
+        "label": "Current PWM Speed",
+        "format": "{{msg.payload}}",
+        "layout": "",
+        "x": 930,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "768f7064.9ee06",
+        "type": "ui_text",
+        "z": "6e9dcce8.16d0ac",
+        "group": "529fa907.5b11e8",
+        "order": 3,
+        "width": "",
+        "height": "",
+        "name": "Motor 1 Speed",
+        "label": "Current Speed",
+        "format": "{{msg.payload}}",
+        "layout": "",
+        "x": 1740,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "57bd08e3.4074e",
+        "type": "ui_text",
+        "z": "6e9dcce8.16d0ac",
+        "group": "16013277.c83b7e",
+        "order": 3,
+        "width": "",
+        "height": "",
+        "name": "Motor 2 Speed",
+        "label": "Current Speed",
+        "format": "{{msg.payload}}",
+        "layout": "",
+        "x": 1740,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "ed9ae77.7edd498",
+        "type": "inject",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "topic": "",
+        "payload": "44",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 710,
+        "y": 160,
+        "wires": [
+            [
+                "86292b52.9330b"
+            ]
+        ]
+    },
+    {
+        "id": "5a9c05a4.5961f4",
+        "type": "inject",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 1550,
+        "y": 340,
+        "wires": [
+            [
+                "57bd08e3.4074e",
+                "5eafacb5.382f3c"
+            ]
+        ]
+    },
+    {
+        "id": "8f2d52f7.f91cd",
+        "type": "ui_text",
+        "z": "6e9dcce8.16d0ac",
+        "group": "f50f09aa.7b4da",
+        "order": 4,
+        "width": "",
+        "height": "",
+        "name": "Usable Speed Range",
+        "label": "Usable Speed Range",
+        "format": "22 - 480",
+        "layout": "",
+        "x": 140,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "625d1cf9.254094",
+        "type": "switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 1230,
+        "y": 460,
+        "wires": [
+            [
+                "593500d9.472898"
+            ],
+            [
+                "6dabfb5b.61488c"
+            ]
+        ]
+    },
+    {
+        "id": "4e4b9c11.53474c",
+        "type": "switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 2,
+        "x": 1170,
+        "y": 100,
+        "wires": [
+            [
+                "ce01dcb1.0d0708"
+            ],
+            [
+                "f830102a.e33688"
+            ]
+        ]
+    },
+    {
+        "id": "6dabfb5b.61488c",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Stop",
+        "func": "msg.payload = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1390,
+        "y": 480,
+        "wires": [
+            [
+                "593500d9.472898"
+            ]
+        ]
+    },
+    {
+        "id": "f830102a.e33688",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Stop",
+        "func": "msg.payload = 0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1310,
+        "y": 120,
+        "wires": [
+            [
+                "ce01dcb1.0d0708"
+            ]
+        ]
+    },
+    {
+        "id": "ab520a48.2e36f8",
+        "type": "inject",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 1550,
+        "y": 240,
+        "wires": [
+            [
+                "768f7064.9ee06",
+                "22baf9b8.3b14ce"
+            ]
+        ]
+    },
+    {
+        "id": "fabe2704.90897",
+        "type": "inject",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 1250,
+        "y": 320,
+        "wires": [
+            [
+                "321f9e0a.7d180a"
+            ]
+        ]
+    },
+    {
+        "id": "6b84fa1d.1f5e74",
+        "type": "inject",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "topic": "",
+        "payload": "1",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 1210,
+        "y": 640,
+        "wires": [
+            [
+                "652d3f0e.09ae2"
+            ]
+        ]
+    },
+    {
+        "id": "78bbbaaa.159494",
+        "type": "link in",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Nexstar Motor Receiver",
+        "links": [
+            "dd2234e7.8d6228",
+            "1bf4eeb.c5f9211"
+        ],
+        "x": 215,
+        "y": 300,
+        "wires": [
+            [
+                "8f75bcab.a520c"
+            ]
+        ]
+    },
+    {
+        "id": "8f75bcab.a520c",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Nexstar Motor Parser",
+        "func": "var payload = msg.payload.split(\"x\");\nif (payload[0]=='M1' && payload[1]=='1'){\n    msg.payload=\"3f0000\";\n}\nif (payload[0]=='M1' && payload[1]=='0'){\n    msg.payload=\"3f7f00\";\n}\nif (payload[0]=='M2' && payload[1]=='1'){\n    msg.payload=\"7f3f00\";\n}\nif (payload[0]=='M2' && payload[1]=='0'){\n    msg.payload=\"003f00\";\n}\nglobal.set(\"motorspeed\",payload[2]);\nreturn msg;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 420,
+        "y": 300,
+        "wires": [
+            [
+                "1fe4527a.912056"
+            ]
+        ]
+    },
+    {
+        "id": "aba9d692.9e9578",
+        "type": "tcp in",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Nexstar In",
+        "server": "server",
+        "host": "",
+        "port": "4030",
+        "datamode": "stream",
+        "datatype": "utf8",
+        "newline": "",
+        "topic": "",
+        "base64": false,
+        "x": 80,
+        "y": 500,
+        "wires": [
+            [
+                "9f0f41a.b40c4c",
+                "ba604dc1.013278"
+            ]
+        ]
+    },
+    {
+        "id": "7ac85152.5f29b",
+        "type": "tcp out",
+        "z": "6e9dcce8.16d0ac",
+        "host": "",
+        "port": "",
+        "beserver": "reply",
+        "base64": false,
+        "end": false,
+        "name": "reply to Nexstar",
+        "x": 560,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "9f0f41a.b40c4c",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Nexstar Protocol",
+        "func": "if (msg.payload == \"V#\"){\n    // SS sends V#\n    // Respond with 23# (for v2.3)\n    data = \"23#\";\n}\nif (msg.payload == \"t\"){\n    // SS sends t#\n    // Respond with 1# (Alt/Az)\n    // Options: 0 = Off\n    //          1 = Alt/Az\n    //          2 = EQ North\n    //          3 = EQ South\n    data = \"49#\";\n}\nif (msg.payload == \"e\"){\n    // SS sends e#\n    data = \"34AB0500,12CE0500#\";\n}\nmsg.payload = data;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 310,
+        "y": 500,
+        "wires": [
+            [
+                "7ac85152.5f29b"
+            ]
+        ]
+    },
+    {
+        "id": "ba604dc1.013278",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "filter for motor cmd",
+        "func": "if(!String.prototype.startsWith){\n    String.prototype.startsWith = function (str) {\n        return !this.indexOf(str);\n    }\n}\nif (msg.payload !== \"e\"){\n    if (msg.payload.startsWith('P')){\n        return msg;\n    }\n    if (msg.payload == \"M\"){\n        global.set(\"motorspeed\",0);\n    }\n}",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 310,
+        "y": 560,
+        "wires": [
+            [
+                "d436423.a85394",
+                "54c6b28f.c778a4"
+            ]
+        ]
+    },
+    {
+        "id": "e888f7a5.5f1bb",
+        "type": "base64",
+        "z": "6e9dcce8.16d0ac",
+        "name": "b64 encode",
+        "x": 634,
+        "y": 560,
+        "wires": [
+            [
+                "32e73aa3.b9996e"
+            ]
+        ]
+    },
+    {
+        "id": "32e73aa3.b9996e",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "parse motor cmd",
+        "func": "var axis = msg.payload.substr(3,1);\nvar dire = msg.payload.substr(5,1);\nvar sped = msg.payload.substr(6,1);\nif (sped == 'I') {\n    sped = '120'; //guiding\n} else if (sped == 'U') {\n    sped = '240'; //centering\n} else if (sped == 'c') {\n    sped = '360'; //finding\n} else if (sped == 'k') {\n    sped = '480'; //max!\n} else if (sped == 'A') {\n    sped = '0';\n}\nsped = ' '+sped;\n\nif (axis == 'R' && dire == 'A'){\n    msg.payload = \"M1x1x\"+sped;\n} else if (axis == 'R' && dire == 'Q'){\n    msg.payload = \"M1x0x\"+sped;\n} else if (axis == 'Q' && dire == 'A'){\n    msg.payload = \"M2x1x\"+sped;\n} else if (axis == 'Q' && dire == 'Q'){\n    msg.payload = \"M2x0x\"+sped;\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 814,
+        "y": 560,
+        "wires": [
+            [
+                "1bf4eeb.c5f9211"
+            ]
+        ]
+    },
+    {
+        "id": "1bf4eeb.c5f9211",
+        "type": "link out",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Nexstar Motor Control",
+        "links": [
+            "78bbbaaa.159494"
+        ],
+        "x": 959,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "78dbe29a.3bb26c",
+        "type": "comment",
+        "z": "6e9dcce8.16d0ac",
+        "name": "Nexstar Remote",
+        "info": "This module handles Nexstar Serial Protocol over TCP,\notherwise known as \"SkyFi\".\n\nSimply connect to scope.local with port 4030",
+        "x": 100,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "d436423.a85394",
+        "type": "switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 481.5,
+        "y": 560,
+        "wires": [
+            [
+                "e888f7a5.5f1bb"
+            ]
+        ]
+    },
+    {
+        "id": "54c6b28f.c778a4",
+        "type": "switch",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            }
+        ],
+        "checkall": "true",
+        "outputs": 1,
+        "x": 482,
+        "y": 615,
+        "wires": [
+            [
+                "3651e217.e9b266"
+            ]
+        ]
+    },
+    {
+        "id": "3651e217.e9b266",
+        "type": "debug",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "true",
+        "x": 616.5,
+        "y": 615,
+        "wires": []
+    },
+    {
+        "id": "22baf9b8.3b14ce",
+        "type": "ui_gauge",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "group": "529fa907.5b11e8",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Az Speed",
+        "label": "PWM Drive",
+        "format": "{{value}}",
+        "min": "-480",
+        "max": "480",
+        "colors": [
+            "#CA3838",
+            "#00B500",
+            "#CA3838"
+        ],
+        "x": 1961.5,
+        "y": 99,
+        "wires": []
+    },
+    {
+        "id": "5eafacb5.382f3c",
+        "type": "ui_gauge",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "group": "16013277.c83b7e",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Az Speed",
+        "label": "PWM Drive",
+        "format": "{{value}}",
+        "min": "-480",
+        "max": "480",
+        "colors": [
+            "#CA3838",
+            "#00B500",
+            "#CA3838"
+        ],
+        "x": 1914,
+        "y": 338,
+        "wires": []
+    },
+    {
+        "id": "17540ba2.acbf54",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "func": "if (global.get(\"m1dir\")==0) {\n    msg.payload = msg.payload*(-1);\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1707.5,
+        "y": 58,
+        "wires": [
+            [
+                "3e5949e7.deb77e",
+                "22baf9b8.3b14ce"
+            ]
+        ]
+    },
+    {
+        "id": "f1d65120.e97d88",
+        "type": "function",
+        "z": "6e9dcce8.16d0ac",
+        "name": "",
+        "func": "if (global.get(\"m2dir\")==0) {\n    msg.payload = msg.payload*(-1);\n}\nreturn msg; ",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1711,
+        "y": 420,
+        "wires": [
+            [
+                "a4ae907d.6bb7f8",
+                "5eafacb5.382f3c"
+            ]
+        ]
+    },
+    {
+        "id": "529fa907.5b11e8",
+        "type": "ui_group",
+        "z": "",
+        "name": "Motor 1 (Azimuth)",
+        "tab": "49822692.fee8a8",
+        "order": null,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "16013277.c83b7e",
+        "type": "ui_group",
+        "z": "",
+        "name": "Motor 2 (Altitude)",
+        "tab": "49822692.fee8a8",
+        "order": 5,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "2ea0db0d.dcda1c",
+        "type": "HIDConfig",
+        "z": "",
+        "vid": "1118",
+        "pid": "39",
+        "name": "Gamepad"
+    },
+    {
+        "id": "f50f09aa.7b4da",
+        "type": "ui_group",
+        "z": "",
+        "name": "Gamepad Control",
+        "tab": "49822692.fee8a8",
+        "order": 5,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "49822692.fee8a8",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Drive",
+        "icon": "dashboard",
+        "order": 0
+    }
+]
