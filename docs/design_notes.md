@@ -1,9 +1,11 @@
+# If you don't wire up the port right, you'll fry something! Don't follow the steps below!
+
 # Design Notes
 These are some notes relating to the design of this project.
 ## Inputs and Outputs
 Here are some of the considerations of inputs and outputs.
 ### Physical/Electrical Interface
-The project board taps into the HC (Hand Controller) connector on the mount, which interfaces with the MC board. This is a unified communications bus inside the mount known as the Aux Bus. The HC connector is a 6P6C cable and has the following pins. See [this thread](https://www.cloudynights.com/topic/524901-nexstar-slt-controller-cabling/) and [this link](https://www.dd1us.de/Downloads/gt_inside%201_0.pdf) for details.
+The project board taps into the HC (Hand Controller) connector on the mount, which interfaces with the MC board. This is a unified communications bus inside the mount known as the Aux Bus. The HC connector is a 6P6C cable and has the following pins. See [this thread](https://www.cloudynights.com/topic/524901-nexstar-slt-controller-cabling/) and [this link](https://www.dd1us.de/Downloads/gt_inside%201_0.pdf) for details. WARNING- these haven't been verified and I unwittingly fried my MC board!
 1. RTS not GND (white)
 2. GND not TXD (black) (serial data from mount to HC)
 3. RXD not GND (blue)
