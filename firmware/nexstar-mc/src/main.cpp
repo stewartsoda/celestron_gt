@@ -2,20 +2,51 @@
 #include <Adafruit_DotStar.h>
 #include <Encoder.h>
 
+////////////////////////////////////////
+// Pin Definitions
+////////////////////////////////////////
+
+/* Encoder pins */
+#define PIN_AZI_LED_A 13
+#define PIN_AZI_LED_B 12
+#define PIN_ALT_LED_A 11
+#define PIN_ALT_LED_B 10
+
+/* Motor pins */
+#define PIN_AZI_MOTOR_A 14
+#define PIN_AZI_MOTOR_B 15
+#define PIN_AZI_MOTOR_PWM 16
+#define PIN_ALT_MOTOR_A 17
+#define PIN_ALT_MOTOR_B 18
+#define PIN_ALT_MOTOR_PWM 19
+
+/* Serial pins */
+
+/* Display pins */
 
 
-/* Globals */
+////////////////////////////////////////
+// Global Variables
+////////////////////////////////////////
+
+/* LEDs */
 Adafruit_DotStar led(DOTSTAR_NUM, PIN_DOTSTAR_DATA, PIN_DOTSTAR_CLK, DOTSTAR_BRG);
 uint8_t brightness = 0;
 bool goingup=true;
-
+/* Encoders */
+Encoder azienc(PIN_AZI_LED_A, PIN_AZI_LED_B);
+Encoder altenc(PIN_ALT_LED_A, PIN_ALT_LED_B);
 
 void setup()
 {
+  Serial.begin(115200);
+  Serial.println("Starting setup....");
+
   led.begin();
   led.setBrightness(0);
   led.setPixelColor(0,0x000000FF);
   led.show();
+
 
 }
 
