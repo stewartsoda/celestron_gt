@@ -33,9 +33,23 @@
 Adafruit_DotStar led(DOTSTAR_NUM, PIN_DOTSTAR_DATA, PIN_DOTSTAR_CLK, DOTSTAR_BRG);
 uint8_t brightness = 0;
 bool goingup=true;
+
 /* Encoders */
 Encoder azienc(PIN_AZI_LED_A, PIN_AZI_LED_B);
 Encoder altenc(PIN_ALT_LED_A, PIN_ALT_LED_B);
+
+/* Motors */
+
+/* Display */
+
+/* PID */
+
+/* Serial */
+
+
+////////////////////////////////////////
+// Functions
+////////////////////////////////////////
 
 void setup()
 {
