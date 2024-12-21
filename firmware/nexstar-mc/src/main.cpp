@@ -45,6 +45,8 @@ Encoder altenc(PIN_ALT_LED_A, PIN_ALT_LED_B);
 /* PID */
 
 /* Serial */
+// Use D5 on the ItsyBitsy M4 for TX as it is level shifted to 5V
+#define PIN_SERIAL_TX 5
 
 
 ////////////////////////////////////////
