@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include <Adafruit_DotStar.h>
+#include <Encoder.h>
 
 
 
