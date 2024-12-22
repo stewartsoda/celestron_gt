@@ -21,6 +21,8 @@
 #define PIN_ALT_MOTOR_PWM 19
 
 /* Serial pins */
+#define PIN_SERIAL_TX 5
+#define PIN_SERIAL_RX 1
 
 /* Display pins */
 
