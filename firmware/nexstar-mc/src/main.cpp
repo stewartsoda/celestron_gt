@@ -4,6 +4,8 @@
 #include <U8g2lib.h>
 #include <SPI.h>
 #include <L298NX2.h>
+#include <TemperatureZero.h>
+#include <Timer.h>
 
 ////////////////////////////////////////
 // Pin Definitions
@@ -55,25 +57,54 @@ uint8_t brightness = 0;
 bool goingup=true;
 
 /* Encoders */
-Encoder azienc(PIN_AZI_LED_A, PIN_AZI_LED_B);
-Encoder altenc(PIN_ALT_LED_A, PIN_ALT_LED_B);
+Encoder azienc(PIN_AZI_LED_A, PIN_AZI_LED_B); // X ticks for 90 degrees of elevation
+Encoder altenc(PIN_ALT_LED_A, PIN_ALT_LED_B); // X ticks for 360 degrees of rotation
 
 /* Motors */
 L298NX2 myMotors(PIN_ALT_MOTOR_EN, PIN_ALT_MOTOR_1, PIN_ALT_MOTOR_2, PIN_AZI_MOTOR_EN, PIN_AZI_MOTOR_1, PIN_AZI_MOTOR_2);
 
 /* Display */
 U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ PIN_OLED_CS, /* dc=*/ PIN_OLED_DC, /* reset=*/ PIN_OLED_RST);
-#define SCREEN_FONT u8g2_font_logisoso16_tf
+#define SCREEN_FONT u8g2_font_timB14_tf
 
 /* PID */
+
+/* Misc. */
+TemperatureZero temp = TemperatureZero();
 
 ////////////////////////////////////////
 // Functions
 ////////////////////////////////////////
 
+void printScreen() {
+  float temp_val = temp.readInternalTemperature();
+  u8g2.clearBuffer();
+  u8g2.setCursor(0,14);
+  u8g2.print("Scope");
+  u8g2.setCursor(0,28);
+  u8g2.print("Alt: ");
+  u8g2.print(altenc.read());
+  u8g2.setCursor(0,42);
+  u8g2.print("Azi: ");
+  u8g2.print(azienc.read());
+  u8g2.setCursor(0,60);
+  u8g2.print("Temp: ");
+  u8g2.print(temp_val);
+  u8g2.sendBuffer();
+}
+
 void setup()
 {
-  // Set up serial devices
+  // Set up screen
+  u8g2.begin();
+  u8g2.clearBuffer();
+  u8g2.sendBuffer();
+  u8g2.setFont(SCREEN_FONT);
+  u8g2.drawStr(0,18,"Scope");
+  u8g2.drawStr(0,36,"Starting up...");
+  u8g2.sendBuffer();
+
+// Set up serial devices
   Serial.begin(115200);
   Serial.println("Starting setup....");
   Serial1.begin(115200);
@@ -85,17 +116,17 @@ void setup()
   led.show();
 
   // Set up encoders
+  altenc.write(0);
+  azienc.write(0);
+
+  temp.init();
 
   // Set up motors
 
-  // Set up screen
-  u8g2.begin();
-  u8g2.clearBuffer();
-  u8g2.sendBuffer();
-  u8g2.setFont(SCREEN_FONT);
-  u8g2.drawStr(0,18,"Scope");
-  u8g2.drawStr(0,36,"Starting up...");
-  u8g2.sendBuffer();
+
+  // Set up timers
+  Timer.repeat(printScreen, 50);
+
   delay(1000);
   u8g2.clearBuffer();
   u8g2.drawStr(0,18,"Scope ready!");
@@ -163,4 +194,6 @@ void loop()
   if (Serial1.available() > 0) {
     serial1Event();
   }
+
+  Timer.run();
 }
