@@ -69,16 +69,16 @@ typedef enum CelestronMotorCommand CelestronMotorCommand_t;
 
 
 /* Command Structure */
-struct celestronMessage
-{
-    char preamble;
-    char length;
-    CelestronDevice_t source;
-    CelestronDevice_t dest;
-    char command;
-    char data[10];
-    char checksum;
-} celestronMessage;
-typedef struct celestronMessage celestronMessage_t;
+// struct celestronMessage
+// {
+//     char preamble;
+//     char length;
+//     CelestronDevice_t source;
+//     CelestronDevice_t dest;
+//     char command;
+//     char data[10];
+//     char checksum;
+// } celestronMessage;
+// typedef struct celestronMessage celestronMessage_t;
 
 #endif
