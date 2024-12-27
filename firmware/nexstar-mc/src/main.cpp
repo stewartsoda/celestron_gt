@@ -1,4 +1,6 @@
 #include "Arduino.h"
+#include "stdint.h"
+
 #include <Adafruit_DotStar.h>
 #include <Encoder.h>
 #include <U8g2lib.h>
@@ -6,43 +8,14 @@
 #include <L298NX2.h>
 #include <TemperatureZero.h>
 #include <Timer.h>
+#include <string.h>
 
-////////////////////////////////////////
-// Pin Definitions
-////////////////////////////////////////
+#include "defines.h"
+#include "celestron.h"
+#include "utils.h"
 
-/* Encoder pins */
-#define PIN_AZI_LED_A 13
-#define PIN_AZI_LED_B 12
-#define PIN_ALT_LED_A 11
-#define PIN_ALT_LED_B 10
+#define DEBUG true
 
-/* Motor pins */
-#define PIN_AZI_MOTOR_1 14    //also A0
-#define PIN_AZI_MOTOR_2 15    //also A1
-#define PIN_AZI_MOTOR_EN 16  //also A2
-#define PIN_ALT_MOTOR_1 17    //also A3
-#define PIN_ALT_MOTOR_2 18    //also A4
-#define PIN_ALT_MOTOR_EN 19  //also A5
-
-/* Serial pins - Serial1 */
-#define PIN_SERIAL_TX 1
-#define PIN_SERIAL_RX 0
-
-/* Display pins */
-// on the board, pins are defined as follows:
-// 1 - GND
-// 2 - VCC
-// 3 - SCL
-// 4 - SDA
-// 5 - RST
-// 6 - DC
-// 7 - CS
-#define PIN_OLED_SCL  24    //also SCK
-#define PIN_OLED_SDA  25    //also MOSI
-#define PIN_OLED_RST  9
-#define PIN_OLED_DC   7
-#define PIN_OLED_CS   2     //also A6
 
 ////////////////////////////////////////
 // Global Variables
@@ -51,9 +24,6 @@
 /* LEDs */
 Adafruit_DotStar led(DOTSTAR_NUM, PIN_DOTSTAR_DATA, PIN_DOTSTAR_CLK, DOTSTAR_BRG);
 uint8_t brightness = 0;
-#define BRIGHTNESS_MAX 16
-#define BRIGHTNESS_MIN 0
-#define LED_DELAY 10
 bool goingup=true;
 
 /* Encoders */
@@ -65,7 +35,6 @@ L298NX2 myMotors(PIN_ALT_MOTOR_EN, PIN_ALT_MOTOR_1, PIN_ALT_MOTOR_2, PIN_AZI_MOT
 
 /* Display */
 U8G2_SSD1309_128X64_NONAME0_F_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ PIN_OLED_CS, /* dc=*/ PIN_OLED_DC, /* reset=*/ PIN_OLED_RST);
-#define SCREEN_FONT u8g2_font_timB14_tf
 
 /* PID */
 
@@ -93,6 +62,7 @@ void printScreen() {
   u8g2.sendBuffer();
 }
 
+
 void setup()
 {
   // Set up screen
@@ -106,8 +76,13 @@ void setup()
 
 // Set up serial devices
   Serial.begin(115200);
+  Serial.setTimeout(25);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
   Serial.println("Starting setup....");
-  Serial1.begin(115200);
+  Serial1.setTimeout(25); //FIXME: make this appropriate for the baud rate and HC messages
+  Serial1.begin(115200);  //FIXME: make this appropriate for the HC baud rate
 
   // Set up LED
   led.begin();
@@ -119,10 +94,10 @@ void setup()
   altenc.write(0);
   azienc.write(0);
 
+  // Set up temperature sensor
   temp.init();
 
   // Set up motors
-
 
   // Set up timers
   Timer.repeat(printScreen, 50);
@@ -134,12 +109,70 @@ void setup()
   delay(1000);
 }
 
-void serialEvent() {
-  while (Serial.available()) {
-    char inChar = (char)Serial.read();
-    Serial.print("I received: ");
-    Serial.println(inChar);
+int decodeCelestronMessage(char *message) {
+  char len = message[0];
+  char source = message[1];
+  char dest = message[2];
+  char command = message[3];
+  char data[3];
+  int result = 1;
+
+  if (len > 3) {
+    for (int i = 0; i < len-4; i++) {
+      data[i] = message[i+4];
+    }
+    result = handleCommand(source, dest, command, data);
   }
+  else {
+    result = handleCommand(source, dest, command, NULL);
+  }
+  return result;
+}
+
+void serialEvent() {
+  // if first char is 0x3b
+  // then if there are at least 6 bytes
+  // then if the checksum is correct
+  // then it is a valid Celestron message
+  // else wait for another byte
+  // else wait for another byte, or too many bytes
+  // else it's a debug message
+
+  char* message = (char*)malloc(10);
+
+  if (Serial.read() == 0x3b) {
+    // We're expecting this to be a Celestron message
+    delay(5); // this should be enough time for a 10-byte message at 9600 bps
+    char msg_length = Serial.peek() + 1; // the command length (not including the checksum), plus the length itself 
+    if (Serial.readBytes(message, msg_length) == msg_length) {
+      char checksum = Serial.read();
+      // we have a complete message
+      if (checkChecksum(message, checksum) == 0) {
+        Serial.print("Valid message: ");
+      }
+      else {
+        Serial.print("Invalid checksum: ");
+      }
+    }
+    else {
+      Serial.print("Incomplete message: ");
+    }
+    for (uint8_t i = 0; i < strlen(message); i++) {
+      Serial.print(message[i], HEX);
+      Serial.print(" ");
+    }
+    Serial.println();
+    decodeCelestronMessage(message);
+  }
+  else {
+    // We're expecting this to be a debug message
+    while (Serial.available()) {
+      char inChar = (char)Serial.read();
+      Serial.print("I received: ");
+      Serial.println(inChar);
+    }
+  }
+
 }
 
 void serial1Event() {
@@ -149,6 +182,17 @@ void serial1Event() {
     Serial.println(inChar);
   }
 }
+
+/* 
+  Need the following ISRs:
+  1. Update encoder position
+  2. Update desired position
+  3. Receive serial input
+  4. Print the screen
+
+  Need the following functions
+
+*/
 
 void loop()
 {
