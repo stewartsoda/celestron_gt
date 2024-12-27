@@ -10,60 +10,98 @@
  *
  * This function calculates a checksum for the provided message string.
  *
- * @param message A pointer to the message string for which the checksum is to be generated.
- * @return The calculated checksum as a char.
+ * @param message A pointer to the NULL-terminated message string for which the checksum is to be generated.
+ * @return The 1-byte calculated checksum as an int.
  */
-uint8_t generateChecksum(char *message) {
-  // 1. Add characters from message[0] to message[end]
+int calculateChecksum(celestronMessage_t *message) {
+  // 1. Add characters message->length, message->source, message->dest, message->command, and message->data[] (if any)
   // 2. Take two's complement
   // 3. Return the resulting value
-  // Note- there is no error checking, the input is assumed to have at sufficient characters
   uint8_t checksum = 0;
-  for(uint8_t i=0; i<sizeof(message); i++) {
-    checksum += message[i];
+  checksum += message->length;
+  checksum += message->source;
+  checksum += message->dest;
+  checksum += message->command;
+  for (int i = 0; i < message->length - 3; i++) {
+    checksum += message->data[i];
   }
   checksum = ~checksum + 1;
   return checksum;
 }
 
-uint8_t checkChecksum(char *message, char checksum) {
+/**
+ * @brief Checks if the checksum of the given message matches the provided checksum.
+ *
+ * This function calculates the checksum of the provided message and compares it
+ * with the given checksum. If they match, the function returns 0 indicating success.
+ * If they do not match, the function returns -1 indicating failure.
+ *
+ * @param message A pointer to the celestronMessage_t whose checksum needs to be verified.
+ * @return uint8_t Returns 0 if the checksum matches, otherwise returns -1.
+ */
+int checkChecksum(celestronMessage_t *message) {
   // calculate checksum on that substring
   // compare to message[end]
   // if matches, return 0 (success)
   // if it doesn't match, return -1 (failure)
-  //char substring[strlen(message)-2];
-  //strncpy(substring, message+1, strlen(message)-2);
-  if(generateChecksum(message) == checksum) {
+  if(calculateChecksum(message) == message->checksum) {
     return 0;
   }
   else {
-    return -1;
+    return 1;
   }
 }
 
-uint8_t decodeCelestronMessage(char *message) {
-  char len = message[0];
-  char source = message[1];
-  char dest = message[2];
-  char command = message[3];
-  char data[3];
-  uint8_t result = 1;
-
-  if (len > 3) {
-    for (int i = 0; i < len-4; i++) {
-      data[i] = message[i+4];
-    }
-    result = handleCommand(source, dest, command, data);
-  }
-  else {
-    result = handleCommand(source, dest, command, NULL);
-  }
-  return result;
+int updateChecksum(celestronMessage_t *message) {
+  message->checksum = calculateChecksum(message);
+  return 0;
 }
 
-uint8_t handleCommand(char source, char dest, char command, char* data) {
-    int result = 0;
-  switch (command) {
+/**
+ * @brief Handles a message received from a Celestron device.
+ *
+ * This function processes a message received from a Celestron device and performs
+ * the appropriate action based on the command contained within the message.
+ *
+ * @param message A pointer to the message received.
+ *
+ * @return uint8_t Returns 1 if the command is invalid, otherwise returns 0.
+ *
+ * The following commands are supported:
+ * - MC_GET_POSITION: Send back the current position (24-bit signed fraction of full rotation).
+ * - MC_GOTO_FAST: Move to the desired position with rate=9 (16 or 24-bit signed fraction of full rotation).
+ * - MC_SET_POSITION: Set the current position (24-bit signed fraction of full rotation).
+ * - MC_SET_POS_GUIDERATE: Set the positive guiderate (24 or 16 bits).
+ * - MC_SET_NEG_GUIDERATE: Set the negative guiderate (24 or 16 bits).
+ * - MC_LEVEL_START: Start the leveling process.
+ * - MC_PEC_RECORD_START: Start the PEC recording process.
+ * - MC_PEC_PLAYBACK: Start or stop PEC playback (8 bits: 0x01 = start, 0x00 = stop).
+ * - MC_SET_POS_BACKLASH: Set positive backlash (8 bits: positive backlash value from 0-99).
+ * - MC_SET_NEG_BACKLASH: Set negative backlash (8 bits: negative backlash value from 0-99).
+ * - MC_IS_LEVEL_DONE: Check if the leveling process is done (0x00 if not done, 0xff if done).
+ * - MC_IS_SLEW_DONE: Check if the slew process is done (0x00 if not done, 0xff if done).
+ * - MC_IS_PEC_RECORD_DONE: Determine if PEC record is complete (0x00 if not done, 0xff if done).
+ * - MC_PEC_RECORD_STOP: Stop the PEC recording process.
+ * - MC_GOTO_SLOW: Move to desired position with slow, variable rate (16 or 24-bit signed fraction of full rotation).
+ * - MC_AT_INDEX: Determine if axis is at an index marker (0x00 if not at index, 0xff if at index).
+ * - MC_SEEK_INDEX: Move to the nearest index marker.
+ * - MC_MOVE_POS: Move in the positive (up/right) direction at a fixed rate (8 bits: rate from 0-9, 0 = stop).
+ * - MC_MOVE_NEG: Move in the negative (down/left) direction at a fixed rate (8 bits: rate from 0-9, 0 = stop).
+ * - MC_ENABLE_CORDWRAP: Enable cordwrap.
+ * - MC_DISABLE_CORDWRAP: Disable cordwrap.
+ * - MC_IS_CORDWRAP_ENABLED: Check if cordwrap is enabled (0x00 if not enabled, 0xff if enabled).
+ * - MC_GET_CORDWRAP_POSITION: Get the cordwrap position (24-bit position).
+ * - MC_GET_POS_BACKLASH: Get the positive backlash (8-bit positive backlash value).
+ * - MC_GET_NEG_BACKLASH: Get the negative backlash (8-bit negative backlash value).
+ * - MC_SET_AUTOGUIDE_RATE: Set the autoguide rate (8 bits: 100 * rate / 256 = percentage of sidereal rate).
+ * - MC_GET_AUTOGUIDE_RATE: Get the autoguide rate (100 * rate / 256 = percentage of sidereal rate).
+ * - MC_GET_APPROACH: Get the approach direction (0x00 for positive, 0x01 for negative).
+ * - MC_SET_APPROACH: Set the approach direction (8 bits: 0x00 for positive, 0x01 for negative).
+ * - MC_GET_VERSION: Get the firmware version (16 bits 0x1234 where the version is 12.34).
+ */
+celestronMessage_t handleCelestronMessage(celestronMessage_t *message) {
+  celestronMessage_t result;
+  switch (message->command) {
     case MC_GET_POSITION:
     //Send back the current position
     //Returns 24 bit position, signed fraction of full rotation
@@ -195,17 +233,30 @@ uint8_t handleCommand(char source, char dest, char command, char* data) {
     case MC_GET_VERSION:
     //Get the firmware version
     //Returns 16 bits 0x1234 where the version is 12.34
+    result.preamble = 0x3b;
+    result.length = 0x05;
+    result.source = message->dest;
+    result.dest = message->source;
+    result.command = MC_GET_VERSION;
+    result.data[0] = 0x12;
+    result.data[1] = 0x34;
+    result.checksum = calculateChecksum(&result);
+
     break;
     default:
     //Invalid command
-    result = 1;
+
     break;
+    return result;
   }  
+
+
+
+
+
+
+
+
   return result;
 }
 
-uint8_t sendCommand(char source, char dest, char command, char *data) {
-  //send the command to the destination
-  //data is optional
-  return 0;
-}

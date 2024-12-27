@@ -117,31 +117,30 @@ void serialEvent() {
   // else wait for another byte, or too many bytes
   // else it's a debug message
 
-  char* message = (char*)malloc(10);
-
-  if (Serial.read() == 0x3b) {
+  //don't strip the first byte, if it's not a Celestron message we may need it
+  if (Serial.peek() == 0x3b) {
+    celestronMessage_t msg;
+    char msgbuf[10];
     // We're expecting this to be a Celestron message
     delay(5); // this should be enough time for a 10-byte message at 9600 bps
-    char msg_length = Serial.peek() + 1; // the command length (not including the checksum), plus the length itself 
-    if (Serial.readBytes(message, msg_length) == msg_length) {
-      char checksum = Serial.read();
-      // we have a complete message
-      if (checkChecksum(message, checksum) == 0) {
-        Serial.print("Valid message: ");
+    msg.preamble = Serial.read();
+    msg.length = Serial.read();
+    msg.source = (CelestronDevice_t)Serial.read();
+    msg.dest = (CelestronDevice_t)Serial.read();
+    msg.command = Serial.read();
+    if (msg.length > 3) {
+      for (int i = 0; i < msg.length - 3; i++) {
+        msg.data[i] = Serial.read();
       }
-      else {
-        Serial.print("Invalid checksum: ");
-      }
     }
-    else {
-      Serial.print("Incomplete message: ");
-    }
-    for (uint8_t i = 0; i < strlen(message); i++) {
-      Serial.print(message[i], HEX);
-      Serial.print(" ");
-    }
+    msg.checksum = Serial.read();
+
+
+
+
+
+
     Serial.println();
-    decodeCelestronMessage(message);
   }
   else {
     // We're expecting this to be a debug message
