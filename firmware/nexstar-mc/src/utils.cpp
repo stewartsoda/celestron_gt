@@ -62,6 +62,8 @@ int updateChecksum(celestronMessage_t *message) {
  *
  * This function processes a message received from a Celestron device and performs
  * the appropriate action based on the command contained within the message.
+ * The message is modified in place to become the response message.
+ * The function returns 1 if the command is invalid, otherwise it returns 0.
  *
  * @param message A pointer to the message received.
  *
@@ -99,8 +101,19 @@ int updateChecksum(celestronMessage_t *message) {
  * - MC_SET_APPROACH: Set the approach direction (8 bits: 0x00 for positive, 0x01 for negative).
  * - MC_GET_VERSION: Get the firmware version (16 bits 0x1234 where the version is 12.34).
  */
-celestronMessage_t handleCelestronMessage(celestronMessage_t *message) {
-  celestronMessage_t result;
+int handleCelestronMessage(celestronMessage_t *message) {
+  celestronMessage_t localMessage;
+  localMessage.preamble = message->preamble;
+  localMessage.length = message->length;
+  localMessage.source = message->source;
+  localMessage.dest = message->dest;
+  localMessage.command = message->command;
+  for (int i = 0; i < message->length - 3; i++) {
+    localMessage.data[i] = message->data[i];
+  }
+  localMessage.checksum = message->checksum;
+
+  int result = 1;
   switch (message->command) {
     case MC_GET_POSITION:
     //Send back the current position
@@ -232,20 +245,20 @@ celestronMessage_t handleCelestronMessage(celestronMessage_t *message) {
     //Returns ack
     case MC_GET_VERSION:
     //Get the firmware version
-    //Returns 16 bits 0x1234 where the version is 12.34
-    result.preamble = 0x3b;
-    result.length = 0x05;
-    result.source = message->dest;
-    result.dest = message->source;
-    result.command = MC_GET_VERSION;
-    result.data[0] = 0x12;
-    result.data[1] = 0x34;
-    result.checksum = calculateChecksum(&result);
-
+    //Returns 16 bits e.g. 0x1234 where the version is 12.34
+    message->preamble = 0x3b;
+    message->length = 0x05;
+    message->source = message->dest;
+    message->dest = message->source;
+    message->command = MC_GET_VERSION;
+    message->data[0] = 0x12;
+    message->data[1] = 0x34;
+    message->checksum = calculateChecksum(message);
+    result = 0;
     break;
     default:
     //Invalid command
-
+    result = 1;
     break;
     return result;
   }  

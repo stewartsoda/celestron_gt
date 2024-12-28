@@ -108,6 +108,19 @@ void setup()
   delay(1000);
 }
 
+void sendReplyCelestronMessage(celestronMessage_t *msg) {
+  // Send the message back to the source
+  Serial1.write(msg->preamble);
+  Serial1.write(msg->length);
+  Serial1.write(msg->source);
+  Serial1.write(msg->dest);
+  Serial1.write(msg->command);
+  for (int i = 0; i < msg->length - 3; i++) {
+    Serial1.write(msg->data[i]);
+  }
+  Serial1.write(msg->checksum);
+}
+
 void serialEvent() {
   // if first char is 0x3b
   // then if there are at least 6 bytes
@@ -134,17 +147,15 @@ void serialEvent() {
       }
     }
     msg.checksum = Serial.read();
-
-
-
-
-
-
+    handleCelestronMessage(&msg);
+    sendReplyCelestronMessage(&msg);
     Serial.println();
   }
   else {
     // We're expecting this to be a debug message
     while (Serial.available()) {
+      //debug message that is like a celestronMessage (get FW version):
+      //0x3b 
       char inChar = (char)Serial.read();
       Serial.print("I received: ");
       Serial.println(inChar);

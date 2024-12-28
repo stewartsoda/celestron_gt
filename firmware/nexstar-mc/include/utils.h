@@ -8,6 +8,6 @@ int calculateChecksum(celestronMessage_t *message);
 int checkChecksum(celestronMessage_t *message);
 int updateChecksum(celestronMessage_t *message);
 
-celestronMessage_t handleCelestronMessage(celestronMessage_t *message);
+int handleCelestronMessage(celestronMessage_t *message);
 
 #endif
