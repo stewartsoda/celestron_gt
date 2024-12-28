@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "celestron.h"
 #include "utils.h"
+#include "globals.h"
 
 /**
  * @brief Generates a checksum for a given message.
@@ -102,22 +103,28 @@ int updateChecksum(celestronMessage_t *message) {
  * - MC_GET_VERSION: Get the firmware version (16 bits 0x1234 where the version is 12.34).
  */
 int handleCelestronMessage(celestronMessage_t *message) {
-  celestronMessage_t localMessage;
-  localMessage.preamble = message->preamble;
-  localMessage.length = message->length;
-  localMessage.source = message->source;
-  localMessage.dest = message->dest;
-  localMessage.command = message->command;
-  for (int i = 0; i < message->length - 3; i++) {
-    localMessage.data[i] = message->data[i];
-  }
-  localMessage.checksum = message->checksum;
+  CelestronDevice sourceDevice = message->source;
+  CelestronDevice destinationDevice = message->dest;
+  message->source = destinationDevice;
+  message->dest = sourceDevice;
 
   int result = 1;
   switch (message->command) {
     case MC_GET_POSITION:
     //Send back the current position
     //Returns 24 bit position, signed fraction of full rotation
+      switch (message->dest) {
+        case ALT_MOTOR_BOARD:
+          // send back the current position of the alt motor
+          
+          break;
+        case AZI_MOTOR_BOARD:
+          // send back the current position of the azi motor
+          break;
+        default:
+          // invalid destination
+          break;
+      }
     break;
     case MC_GOTO_FAST:
     //Move to the desired position with rate=9
@@ -246,20 +253,17 @@ int handleCelestronMessage(celestronMessage_t *message) {
     case MC_GET_VERSION:
     //Get the firmware version
     //Returns 16 bits e.g. 0x1234 where the version is 12.34
-    message->preamble = 0x3b;
     message->length = 0x05;
-    message->source = message->dest;
-    message->dest = message->source;
-    message->command = MC_GET_VERSION;
     message->data[0] = 0x12;
     message->data[1] = 0x34;
-    message->checksum = calculateChecksum(message);
     result = 0;
     break;
     default:
     //Invalid command
     result = 1;
     break;
+    message->checksum = calculateChecksum(message);
+
     return result;
   }  
 

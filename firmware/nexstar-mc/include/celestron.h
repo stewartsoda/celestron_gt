@@ -18,7 +18,8 @@ enum CelestronDevice {
     AZI_MOTOR_BOARD = 0x10,
     ALT_MOTOR_BOARD = 0x11,
     GPS_INTERFACE = 0xb0,
-    REALTIMECLOCK = 0xb2
+    REALTIMECLOCK = 0xb2,
+    PC = 0xff
 };
 typedef enum CelestronDevice CelestronDevice_t;
 

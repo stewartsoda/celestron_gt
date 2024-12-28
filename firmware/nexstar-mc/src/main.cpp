@@ -1,18 +1,11 @@
 #include "Arduino.h"
 #include "stdint.h"
 
-#include <Adafruit_DotStar.h>
-#include <Encoder.h>
-#include <U8g2lib.h>
-#include <SPI.h>
-#include <L298NX2.h>
-#include <TemperatureZero.h>
-#include <Timer.h>
-#include <string.h>
-
 #include "defines.h"
 #include "celestron.h"
 #include "utils.h"
+#include "globals.h"
+#include "libs.h"
 
 #define DEBUG true
 
@@ -133,7 +126,6 @@ void serialEvent() {
   //don't strip the first byte, if it's not a Celestron message we may need it
   if (Serial.peek() == 0x3b) {
     celestronMessage_t msg;
-    char msgbuf[10];
     // We're expecting this to be a Celestron message
     delay(5); // this should be enough time for a 10-byte message at 9600 bps
     msg.preamble = Serial.read();
@@ -153,12 +145,16 @@ void serialEvent() {
   }
   else {
     // We're expecting this to be a debug message
+    String input;
+    celestronMessage_t msg;
     while (Serial.available()) {
       //debug message that is like a celestronMessage (get FW version):
-      //0x3b 
-      char inChar = (char)Serial.read();
+      //0x3b 0x03 0xff 0x10 0xfe 0xf0
+      input = Serial.readString();
       Serial.print("I received: ");
-      Serial.println(inChar);
+      Serial.println(input);
+  
+
     }
   }
 
