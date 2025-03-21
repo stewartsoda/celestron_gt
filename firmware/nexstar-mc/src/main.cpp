@@ -6,6 +6,9 @@
 #include "utils.h"
 #include "globals.h"
 #include "libs.h"
+#include "pins.h"
+
+//#include "encod.h"
 
 #define DEBUG true
 
@@ -20,8 +23,8 @@ uint8_t brightness = 0;
 bool goingup=true;
 
 /* Encoders */
-Encoder azienc(PIN_AZI_LED_A, PIN_AZI_LED_B); // X ticks for 90 degrees of elevation
-Encoder altenc(PIN_ALT_LED_A, PIN_ALT_LED_B); // X ticks for 360 degrees of rotation
+HoneywellEncoder altenc(PIN_ALT_STEP, PIN_ALT_DIR);
+HoneywellEncoder azienc(PIN_AZI_STEP, PIN_AZI_DIR);
 
 /* Motors */
 L298NX2 myMotors(PIN_ALT_MOTOR_EN, PIN_ALT_MOTOR_1, PIN_ALT_MOTOR_2, PIN_AZI_MOTOR_EN, PIN_AZI_MOTOR_1, PIN_AZI_MOTOR_2);
@@ -45,10 +48,10 @@ void printScreen() {
   u8g2.print("Scope");
   u8g2.setCursor(0,28);
   u8g2.print("Alt: ");
-  u8g2.print(altenc.read());
+  //u8g2.print(altenc.read());
   u8g2.setCursor(0,42);
   u8g2.print("Azi: ");
-  u8g2.print(azienc.read());
+  //u8g2.print(azienc.read());
   u8g2.setCursor(0,60);
   u8g2.print("Temp: ");
   u8g2.print(temp_val);
@@ -83,9 +86,9 @@ void setup()
   led.show();
 
   // Set up encoders
-  altenc.write(0);
-  azienc.write(0);
-
+  altenc.begin();
+  azienc.begin();
+  
   // Set up temperature sensor
   temp.init();
 
